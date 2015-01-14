@@ -70,6 +70,9 @@
                 $("#new_station_post").click(function() {
                     $("#post_station_container").css("display", "block");
                 });
+                $("#play_media").click(function() {
+                    $("#play_station_container").css("display", "block");
+                });
                 $("#stop_media").click(function() {
                     $.ajax({
                         type: "POST",
@@ -84,11 +87,23 @@
                         type: "POST",
                         url: "/station/put/?name=" + name + "&url=" + url + "",
                         success: function() {
-                            alert("Data posted!(station)");
                             $("#post_schema_container").css("display", "none");
                         }
                     });
                 });
+                $("#play_station_button").click(function() {
+                    var id = $("#play_station_name option:selected").val();
+                    var volume = $("#play_station_volume option:selected").val();
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/mediaplayer/play/?stationid=" + id + "&volume=" + volume + "",
+                        success: function() {
+                            $("#play_station_container").css("display", "none");
+                        }
+                    });
+                });
+                
                 $("#post_schema_container").click(function(e) {
                     if (!$(e.target).hasClass("container")) {
                         return;
@@ -100,6 +115,12 @@
                         return;
                     }
                     $("#post_station_container").css("display", "none");
+                });
+                $("#play_station_container").click(function(e) {
+                    if (!$(e.target).hasClass("container")) {
+                        return;
+                    }
+                    $("#play_station_container").css("display", "none");
                 });
 
 
@@ -132,6 +153,7 @@
                 //Load volume
                 for (var i = 5; i < 105; i += 5) {
                     $("#volume").append("<option value='" + (i) + "'>" + (i) + "</option>");
+                    $("#play_station_volume").append("<option value='" + (i) + "'>" + (i) + "</option>");
                 }
             });
 
@@ -217,6 +239,19 @@
                 background: -o-linear-gradient(#ee6666, #bb5555); /* For Opera 11.1 to 12.0 */
                 background: -moz-linear-gradient(#ee6666, #bb5555); /* For Firefox 3.6 to 15 */
                 background: linear-gradient(#ee6666, #bb5555); /* Standard syntax */
+            }
+            #play_media{
+                width:calc(100% - 20px);
+                height:50px;
+                padding:10px;
+                margin:10px;
+                border-radius: 5px;
+                border:1px solid #663333;
+                float:left;
+                background: -webkit-linear-gradient(#6666ee, #5555bb); /* For Safari 5.1 to 6.0 */
+                background: -o-linear-gradient(#6666ee, #5555bb); /* For Opera 11.1 to 12.0 */
+                background: -moz-linear-gradient(#6666ee, #5555bb); /* For Firefox 3.6 to 15 */
+                background: linear-gradient(#6666ee, #5555bb); /* Standard syntax */
             }
 
             #schema{
@@ -309,6 +344,7 @@
         <div id="main_container">
             <button id="new_schema_post">Lägg till ny händelse</button>
             <button id="new_station_post">Lägg till ny radiostation</button>
+            <button id="play_media">PLAY</button>
             <button id="stop_media">STOP</button>
             <div id="schema"></div>
 
@@ -357,6 +393,17 @@
                     <input id="add_station_name" placeholder="Name">
                     <input id="add_station_url" placeholder="URL">
                     <button id="post_station_button">Spara</button>
+                </div>
+            </div>
+            <div id="play_station_container" class="container">
+                <div id="play_station">
+                    <select id="play_station_name">
+                        <option value="-1">-Station-</option>
+                    </select>
+                    <select id="play_station_volume">
+                        <option value="-1">-Volym-</option>
+                    </select>
+                    <button id="play_station_button">PLAY</button>
                 </div>
             </div>
         </div>

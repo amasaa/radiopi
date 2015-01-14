@@ -2,8 +2,6 @@ var port = 80;
 var express = require('express');
 var app = express();
 
-var credentials = require("./config.json")
-
 var winston = require('winston');
 winston.add(winston.transports.File, { filename: '/var/www/serverlog.log' });
 
@@ -14,8 +12,8 @@ var child;
 var mysql = require('mysql');
 connection = mysql.createConnection({
     host: 'localhost',
-    user: credentials.username,
-    password: credentials.password
+    user: 'root',
+    password: 'mammapappa!'
 });
 if (connection.status != "authenticated") {
     connectDB();
@@ -83,7 +81,7 @@ app.get('/weekschema/check', function(req, res) {
             entry_volume = result[i].volume;
             if (entry_hour == now_hour && entry_minute == now_minute) {
                 winston.log("info", "TIME FOR ALERT!!! Play stations " + entry_station + " at " + (entry_volume == null ? 80 : entry_volume) + "% volume");
-                child = exec("curl localhost/mediaplayer/play?stationid=" + entry_station);
+                child = exec("curl localhost/mediaplayer/play?stationid=" + entry_station + "&volume=" + entry_volume);
             }
         }
         winston.log("info", "Error:");
@@ -170,7 +168,7 @@ app.post('/weekschema/delete', function(req, res) {
 app.use('/mediaplayer/play', function(req, res) {
     var urlquery = req.query;
     winston.log("info", "\n");
-    winston.log("info", "Got request: play media at station " + urlquery.stationid);
+    winston.log("info", "Got request: play media at station " + urlquery.stationid + " with volume " + urlquery.volume);
 
 
     var query = connection.query('SELECT * FROM station WHERE id =' + urlquery.stationid, function(err, result) {
@@ -195,6 +193,14 @@ app.use('/mediaplayer/play', function(req, res) {
         });
 
         child = exec("mpc play", function(error, stdout, stderr) {
+            winston.log("info", 'stdout: ' + stdout);
+            winston.log("info", 'stderr: ' + stderr);
+            if (error !== null) {
+                winston.log("info", 'exec error: ' + error);
+            }
+        });
+        
+        child = exec("mpc volume " + urlquery.volume, function(error, stdout, stderr) {
             winston.log("info", 'stdout: ' + stdout);
             winston.log("info", 'stderr: ' + stderr);
             if (error !== null) {
