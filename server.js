@@ -81,7 +81,7 @@ app.get('/weekschema/check', function(req, res) {
             entry_volume = result[i].volume;
             if (entry_hour == now_hour && entry_minute == now_minute) {
                 winston.log("info", "TIME FOR ALERT!!! Play stations " + entry_station + " at " + (entry_volume == null ? 80 : entry_volume) + "% volume");
-                child = exec("curl localhost/mediaplayer/play?stationid=" + entry_station + "&volume=" + entry_volume);
+                child = exec("curl 'localhost/mediaplayer/play?stationid=" + entry_station + "&volume=" + entry_volume + "'");
             }
         }
         winston.log("info", "Error:");
